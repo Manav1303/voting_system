@@ -3,6 +3,9 @@ import 'package:voting_system/widget/login.dart';
 
 void main() {
   runApp(
-    const MaterialApp(debugShowCheckedModeBanner: false, home: LoginPage()),
+    const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: LoginPage(),
+    ),
   );
 }
