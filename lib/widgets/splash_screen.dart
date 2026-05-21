@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:voting_system/widget/login.dart';
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -120,24 +119,6 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
 
               const Spacer(),
-
-              /// BUTTON
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                ),
-
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                  );
-                },
-
-                child: const Text("Get Started"),
-              ),
 
               const SizedBox(height: 20),
 
