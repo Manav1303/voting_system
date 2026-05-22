@@ -19,6 +19,8 @@ class UserVotingScreen extends StatefulWidget {
 class _UserVotingScreenState extends State<UserVotingScreen> {
   String? selectedCity;
 
+  bool hasVoted = false;
+
   @override
   Widget build(BuildContext context) {
     final cities = widget.cityWiseData.keys.toList();
@@ -116,14 +118,36 @@ class _UserVotingScreenState extends State<UserVotingScreen> {
               items: cities.map((city) {
                 return DropdownMenuItem(value: city, child: Text(city));
               }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedCity = value;
-                });
-              },
+              onChanged: hasVoted
+                  ? null
+                  : (value) {
+                      setState(() {
+                        selectedCity = value;
+                      });
+                    },
             ),
 
             const SizedBox(height: 22),
+
+            if (hasVoted)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade100,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Text(
+                  "You have already voted. You cannot vote again.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
 
             if (selectedCity != null)
               Expanded(
@@ -231,7 +255,9 @@ class _UserVotingScreenState extends State<UserVotingScreen> {
                                   ElevatedButton.icon(
                                     style: ElevatedButton.styleFrom(
                                       elevation: 0,
-                                      backgroundColor: Colors.blue.shade700,
+                                      backgroundColor: hasVoted
+                                          ? Colors.grey
+                                          : Colors.blue.shade700,
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 18,
                                         vertical: 12,
@@ -241,31 +267,35 @@ class _UserVotingScreenState extends State<UserVotingScreen> {
                                       ),
                                     ),
 
-                                    onPressed: () {
-                                      widget.onVote(selectedCity!, index);
+                                    onPressed: hasVoted
+                                        ? null
+                                        : () {
+                                            widget.onVote(selectedCity!, index);
 
-                                      setState(() {});
+                                            setState(() {
+                                              hasVoted = true;
+                                            });
 
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          backgroundColor: Colors.green,
-                                          content: Text(
-                                            "Vote given to ${candidate["Candidatename"]}",
-                                          ),
-                                        ),
-                                      );
-                                    },
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                backgroundColor: Colors.green,
+                                                content: Text(
+                                                  "Vote given to ${candidate["Candidatename"]}",
+                                                ),
+                                              ),
+                                            );
+                                          },
 
                                     icon: const Icon(
                                       Icons.how_to_vote,
                                       color: Colors.white,
                                     ),
 
-                                    label: const Text(
-                                      "Vote",
-                                      style: TextStyle(
+                                    label: Text(
+                                      hasVoted ? "Voted" : "Vote",
+                                      style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                       ),
