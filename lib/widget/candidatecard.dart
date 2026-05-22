@@ -4,7 +4,7 @@ class CandidateCard extends StatelessWidget {
   final String partyName;
   final String candidateName;
   final int votes;
-  final IconData icon;
+  final String icon; 
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
@@ -38,7 +38,7 @@ class CandidateCard extends StatelessWidget {
                     color: Colors.blue.shade50,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, size: 32, color: Colors.blue),
+                  child: Text(icon, style: const TextStyle(fontSize: 28)), 
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -107,11 +107,7 @@ class CandidateCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 IconButton(
                   onPressed: onEdit,
-                  icon: const Icon(
-                    Icons.edit,
-                    color: Colors.blueAccent,
-                    size: 20,
-                  ),
+                  icon: const Icon(Icons.edit, color: Colors.blueAccent, size: 20),
                   tooltip: 'Edit',
                 ),
                 if (onDelete != null)

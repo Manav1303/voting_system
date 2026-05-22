@@ -4,7 +4,7 @@ import 'package:voting_system/widget/candidatecard.dart';
 class CitySelectionScreen extends StatefulWidget {
   final Map<String, List<Map<String, dynamic>>> cityWiseData;
   final void Function(String city, int index, Map<String, dynamic> updated)
-  onEditCandidate;
+      onEditCandidate;
   final void Function(String city, int index) onDeleteCandidate;
 
   const CitySelectionScreen({
@@ -21,9 +21,56 @@ class CitySelectionScreen extends StatefulWidget {
 class _CitySelectionScreenState extends State<CitySelectionScreen> {
   String? selectedCity;
 
+  List<Map<String, dynamic>> candidates = [];
+
+  @override
+  void didUpdateWidget(covariant CitySelectionScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.cityWiseData != widget.cityWiseData) {
+      setState(() {
+        if (selectedCity != null) {
+          if (widget.cityWiseData.containsKey(selectedCity)) {
+            candidates = List<Map<String, dynamic>>.from(
+              widget.cityWiseData[selectedCity!]!,
+            );
+          } else {
+            selectedCity = null;
+            candidates = [];
+          }
+        }
+      });
+    }
+  }
+
+  void _onCityChanged(String? city) {
+    setState(() {
+      selectedCity = city;
+      candidates = city != null
+          ? List<Map<String, dynamic>>.from(widget.cityWiseData[city]!)
+          : [];
+    });
+  }
+
+  String _emojiForParty(String partyName) {
+    switch (partyName.trim().toUpperCase()) {
+      case 'BJP':
+        return '🪷';
+      case 'CONGRESS':
+        return '✋';
+      case 'AAP':
+        return '🧹';
+      case 'NCP':
+        return '🕰️';
+      default:
+        return '🗳️';
+    }
+  }
+
   void _showEditDialog(int index, Map<String, dynamic> candidate) {
     final partyCtrl = TextEditingController(text: candidate["Partyname"]);
     final nameCtrl = TextEditingController(text: candidate["Candidatename"]);
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -49,12 +96,23 @@ class _CitySelectionScreenState extends State<CitySelectionScreen> {
           ),
           ElevatedButton(
             onPressed: () {
+              final partyName = partyCtrl.text.trim();
+              final candidateName = nameCtrl.text.trim();
+
+              if (partyName.isEmpty || candidateName.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Please fill all fields")),
+                );
+                return;
+              }
+
               widget.onEditCandidate(selectedCity!, index, {
-                "Partyname": partyCtrl.text.trim(),
-                "Candidatename": nameCtrl.text.trim(),
+                "Partyname": partyName,
+                "Candidatename": candidateName,
                 "Votes": candidate["Votes"],
-                "Icon": candidate["Icon"],
+                "Icon": _emojiForParty(partyName),
               });
+
               Navigator.pop(ctx);
             },
             child: const Text("Save"),
@@ -67,9 +125,6 @@ class _CitySelectionScreenState extends State<CitySelectionScreen> {
   @override
   Widget build(BuildContext context) {
     final cities = widget.cityWiseData.keys.toList();
-    final candidates = selectedCity != null
-        ? widget.cityWiseData[selectedCity!]!
-        : <Map<String, dynamic>>[];
 
     return Column(
       children: [
@@ -104,13 +159,17 @@ class _CitySelectionScreenState extends State<CitySelectionScreen> {
                 style: const TextStyle(color: Colors.white),
                 items: cities
                     .map(
-                      (city) =>
-                          DropdownMenuItem(value: city, child: Text(city)),
+                      (city) => DropdownMenuItem(
+                        value: city,
+                        child: Text(city),
+                      ),
                     )
                     .toList(),
-                onChanged: (value) => setState(() => selectedCity = value),
+                onChanged: _onCityChanged,
               ),
+
               const SizedBox(height: 20),
+
               if (selectedCity == null)
                 const Text(
                   "Please select a city to see candidates.",
@@ -124,10 +183,12 @@ class _CitySelectionScreenState extends State<CitySelectionScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+
               const SizedBox(height: 12),
             ],
           ),
         ),
+
         if (selectedCity != null)
           Expanded(
             child: ListView.builder(
@@ -135,6 +196,7 @@ class _CitySelectionScreenState extends State<CitySelectionScreen> {
               itemCount: candidates.length,
               itemBuilder: (context, index) {
                 final e = candidates[index];
+
                 return CandidateCard(
                   partyName: e["Partyname"],
                   candidateName: e["Candidatename"],

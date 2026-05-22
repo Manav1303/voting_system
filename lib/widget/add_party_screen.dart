@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class AddPartyScreen extends StatefulWidget {
   final List<String> cities;
-  final Function(String, Map<String, dynamic>) addCandidate;
   final void Function(String city, String partyName, String candidateName)
-  onAddParty;
+      onAddParty;
+  final Future<void> Function(String, Map<String, dynamic>) addCandidate;
 
   const AddPartyScreen({
     super.key,
@@ -19,8 +19,72 @@ class AddPartyScreen extends StatefulWidget {
 
 class _AddPartyScreenState extends State<AddPartyScreen> {
   String? selectedCity;
+  bool isAdding = false;
+
   final partyController = TextEditingController();
   final candidateController = TextEditingController();
+
+  @override
+  void dispose() {
+    partyController.dispose();
+    candidateController.dispose();
+    super.dispose();
+  }
+
+  String partyEmoji(String partyName) {
+    switch (partyName.trim().toUpperCase()) {
+      case 'BJP':
+        return '🪷';
+      case 'CONGRESS':
+        return '✋';
+      case 'AAP':
+        return '🧹';
+      case 'NCP':
+        return '🕰️';
+      default:
+        return '🗳️';
+    }
+  }
+
+  Future<void> addPartyButtonClick() async {
+    if (isAdding) return;
+
+    if (selectedCity == null ||
+        partyController.text.trim().isEmpty ||
+        candidateController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill all fields")),
+      );
+      return;
+    }
+
+    setState(() {
+      isAdding = true;
+    });
+
+    try {
+      await widget.addCandidate(selectedCity!, {
+        "Partyname": partyController.text.trim(),
+        "Candidatename": candidateController.text.trim(),
+        "Votes": 0,
+        "Icon": partyEmoji(partyController.text.trim()),
+      });
+
+      if (!mounted) return;
+
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+
+      setState(() {
+        isAdding = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,13 +129,25 @@ class _AddPartyScreenState extends State<AddPartyScreen> {
                 dropdownColor: Colors.blue,
                 style: const TextStyle(color: Colors.white),
                 items: widget.cities.map((city) {
-                  return DropdownMenuItem(value: city, child: Text(city));
+                  return DropdownMenuItem(
+                    value: city,
+                    child: Text(city),
+                  );
                 }).toList(),
-                onChanged: (value) => setState(() => selectedCity = value),
+                onChanged: isAdding
+                    ? null
+                    : (value) {
+                        setState(() {
+                          selectedCity = value;
+                        });
+                      },
               ),
+
               const SizedBox(height: 20),
+
               TextField(
                 controller: partyController,
+                enabled: !isAdding,
                 decoration: InputDecoration(
                   labelText: "Party Name",
                   border: OutlineInputBorder(
@@ -79,9 +155,12 @@ class _AddPartyScreenState extends State<AddPartyScreen> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 20),
+
               TextField(
                 controller: candidateController,
+                enabled: !isAdding,
                 decoration: InputDecoration(
                   labelText: "Candidate Name",
                   border: OutlineInputBorder(
@@ -89,33 +168,33 @@ class _AddPartyScreenState extends State<AddPartyScreen> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 30),
+
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                  onPressed: () {
-                    if (selectedCity == null ||
-                        partyController.text.isEmpty ||
-                        candidateController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Please fill all fields")),
-                      );
-                      return;
-                    }
-                    widget.addCandidate(selectedCity!, {
-                      "Partyname": partyController.text,
-                      "Candidatename": candidateController.text,
-                      "Votes": 0,
-                      "Icon": Icons.how_to_vote_outlined,
-                    });
-                    Navigator.pop(context);
-                  },
-                  child: const Text(
-                    "Add Party",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
                   ),
+                  onPressed: isAdding ? null : addPartyButtonClick,
+                  child: isAdding
+                      ? const SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text(
+                          "Add Party",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
                 ),
               ),
             ],

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:voting_system/widget/citySel.dart';
 import 'package:voting_system/widget/add_party_screen.dart';
 
-class ListingScreen extends StatelessWidget {
+class ListingScreen extends StatefulWidget {
   final List<String> messages;
   final Map<String, List<Map<String, dynamic>>> cityWiseData;
-  final void Function(String city, Map<String, dynamic> candidate) addCandidate;
   final void Function(String city, int index, Map<String, dynamic> updated)
   onEditCandidate;
+  final Future<void> Function(String city, Map<String, dynamic> candidate) addCandidate;
   final void Function(String city, int index) onDeleteCandidate;
 
   const ListingScreen({
@@ -20,50 +20,67 @@ class ListingScreen extends StatelessWidget {
   });
 
   @override
+  State<ListingScreen> createState() => _ListingScreenState();
+}
+
+class _ListingScreenState extends State<ListingScreen> {
+  static String partyEmoji(String partyName) {
+    switch (partyName.trim().toUpperCase()) {
+      case 'BJP':      return '🪷';
+      case 'CONGRESS': return '✋';
+      case 'AAP':      return '🧹';
+      case 'NCP':      return '🕰️';
+      default:         return '🗳️';
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Center(
-          child: Text(
-            'Voting System',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Color.fromARGB(255, 9, 14, 10),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: 'Add New Party',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddPartyScreen(
-                    cities: cityWiseData.keys.toList(),
-                    addCandidate: addCandidate,
-                    onAddParty: (city, partyName, candidateName) {
-                      addCandidate(city, {
-                        "Partyname": partyName,
-                        "Candidatename": candidateName,
-                        "Votes": 0,
-                        "Icon": Icons.how_to_vote_outlined,
-                      });
-                    },
+    return Column(
+      children: [
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Voting System',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Color.fromARGB(255, 9, 14, 10),
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              );
-            },
+              ),
+              IconButton(
+                icon: const Icon(Icons.add),
+                tooltip: 'Add New Party',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddPartyScreen(
+                        cities: widget.cityWiseData.keys.toList(),
+                        addCandidate: widget.addCandidate,
+                        onAddParty: (city, partyName, candidateName) {},
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-      body: CitySelectionScreen(
-        cityWiseData: cityWiseData,
-        onEditCandidate: onEditCandidate,
-        onDeleteCandidate: onDeleteCandidate,
-      ),
+        ),
+        Expanded(
+          child: CitySelectionScreen(
+            cityWiseData: widget.cityWiseData,
+            onEditCandidate: widget.onEditCandidate,
+            onDeleteCandidate: widget.onDeleteCandidate,
+          ),
+        ),
+      ],
     );
   }
 }
