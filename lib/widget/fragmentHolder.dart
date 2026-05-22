@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:voting_system/widget/listing_screen.dart';
+import 'package:voting_system/widget/user_voting_screen.dart';
 
 class FragmentPlaceholder extends StatefulWidget {
-  const FragmentPlaceholder({super.key});
+  final bool isAdmin;
 
+  const FragmentPlaceholder({super.key, required this.isAdmin});
   @override
   State<FragmentPlaceholder> createState() => _FragmentPlaceholderState();
 }
@@ -14,6 +16,7 @@ class _FragmentPlaceholderState extends State<FragmentPlaceholder> {
     "Choose your leaders wisely.",
     "Vote for a brighter future!",
   ];
+  String votingDate = "25 May 2026";
 
   Map<String, List<Map<String, dynamic>>> cityWiseData = {
     "Vadodara": [
@@ -149,6 +152,12 @@ class _FragmentPlaceholderState extends State<FragmentPlaceholder> {
     });
   }
 
+  void voteCandidate(String city, int index) {
+    setState(() {
+      cityWiseData[city]![index]["Votes"]++;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -162,13 +171,19 @@ class _FragmentPlaceholderState extends State<FragmentPlaceholder> {
           ],
         ),
       ),
-      body: ListingScreen(
-        messages: messages,
-        cityWiseData: cityWiseData,
-        addCandidate: addCandidate,
-        onEditCandidate: editCandidate,
-        onDeleteCandidate: deleteCandidate,
-      ),
+      body: widget.isAdmin
+          ? ListingScreen(
+              messages: messages,
+              cityWiseData: cityWiseData,
+              addCandidate: addCandidate,
+              onEditCandidate: editCandidate,
+              onDeleteCandidate: deleteCandidate,
+            )
+          : UserVotingScreen(
+              cityWiseData: cityWiseData,
+              votingDate: votingDate,
+              onVote: voteCandidate,
+            ),
     );
   }
 }

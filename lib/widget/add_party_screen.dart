@@ -21,6 +21,7 @@ class _AddPartyScreenState extends State<AddPartyScreen> {
   String? selectedCity;
   final partyController = TextEditingController();
   final candidateController = TextEditingController();
+  final dateController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -115,6 +116,18 @@ class _AddPartyScreenState extends State<AddPartyScreen> {
                   child: const Text(
                     "Add Party",
                     style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              TextField(
+                controller: dateController,
+                decoration: InputDecoration(
+                  labelText: "Voting Date",
+                  hintText: "25 May 2026",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
