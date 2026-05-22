@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:voting_system/widget/fragmentHolder.dart';
-import 'package:voting_system/widget/user_voting_screen.dart';
 
 const Color primaryBlue = Colors.blue;
 const Color bgLight = Color(0xFFF5F5F5);
