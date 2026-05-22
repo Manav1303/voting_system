@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'user_voting_screen.dart';
 
 class UserVotingScreen extends StatefulWidget {
   final Map<String, List<Map<String, dynamic>>> cityWiseData;

@@ -4,7 +4,7 @@ import 'package:voting_system/widget/listing_screen.dart';
 class AdminHome extends StatelessWidget {
   final List<String> messages;
   final Map<String, List<Map<String, dynamic>>> cityWiseData;
-  final void Function(String city, Map<String, dynamic> candidate) addCandidate;
+  final Future<void> Function(String city, Map<String, dynamic> candidate) addCandidate;
   final void Function(String city, int index, Map<String, dynamic> updated)
   onEditCandidate;
   final void Function(String city, int index) onDeleteCandidate;
