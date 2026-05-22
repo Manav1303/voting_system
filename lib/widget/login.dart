@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:voting_system/widget/fragmentHolder.dart';
+import 'package:voting_system/widget/user_voting_screen.dart';
 
 const Color primaryBlue = Colors.blue;
 const Color bgLight = Color(0xFFF5F5F5);
@@ -31,9 +32,27 @@ class _LoginPageState extends State<LoginPage> {
   ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: color));
 
   void _login() {
+    
     final pass = _passwordCtrl.text.trim();
     if (_role == 'User') {
-      _snack('User login coming soon', Colors.orange);
+      final voterId = _voterIdCtrl.text.trim();
+
+      if (voterId.isEmpty || pass.isEmpty) {
+        return _snack('Please fill all fields', Colors.orange);
+      }
+
+      if (voterId == "user123" && pass == "12345") {
+        _snack('User Login Successful', Colors.green);
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const FragmentPlaceholder(isAdmin: false),
+          ),
+        );
+      } else {
+        _snack('Invalid User Credentials', Colors.red);
+      }
     } else {
       final user = _usernameCtrl.text.trim();
       if (user.isEmpty || pass.isEmpty)
@@ -43,7 +62,9 @@ class _LoginPageState extends State<LoginPage> {
       _snack('Admin Login Successful', Colors.green);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const FragmentPlaceholder()),
+        MaterialPageRoute(
+          builder: (_) => const FragmentPlaceholder(isAdmin: true),
+        ),
       );
     }
   }

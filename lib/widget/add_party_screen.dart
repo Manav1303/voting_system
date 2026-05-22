@@ -23,6 +23,7 @@ class _AddPartyScreenState extends State<AddPartyScreen> {
 
   final partyController = TextEditingController();
   final candidateController = TextEditingController();
+  final dateController = TextEditingController();
 
   @override
   void dispose() {
@@ -195,6 +196,18 @@ class _AddPartyScreenState extends State<AddPartyScreen> {
                             fontSize: 18,
                           ),
                         ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              TextField(
+                controller: dateController,
+                decoration: InputDecoration(
+                  labelText: "Voting Date",
+                  hintText: "25 May 2026",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ],
